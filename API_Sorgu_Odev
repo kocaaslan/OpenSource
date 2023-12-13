@@ -1,1 +1,13 @@
+import requests
 
+# API bağlantısı
+api = 'https://openlibrary.org/developers/api'  # Örnek API bağlantısı
+
+# GET işlemi
+response = requests.get(api)
+
+if response.status_code == 200:  # Doğru mu?
+    data = response.json()  # Yanıtı JSON formatına dönüştürme
+    print(data)  # Veriyi ekrana yazma
+else:
+    print('Başarısız. Hata kodu:', response.status_code)

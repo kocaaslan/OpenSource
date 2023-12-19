@@ -1,0 +1,43 @@
+[Unit]
+Description=Sample server
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/nk1
+ExecStart=/usr/bin/gunicorn --workers 3 --bind unix:/opt/nk1/app.sock -m 007 wsgi:app
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
+server {
+    listen 82;  
+
+    location / {
+        include proxy_params; 
+        proxy_pass http://unix:/opt/nk1/app.sock;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /static {
+        include /etc/nginx/mime.types; 
+        root /opt/nk1/; 
+      
+    }
+    
+    location /images {
+         alias /opt/nk1/images/;
+         access_log off;
+     }
+}
+
+
+from app import app
+
+if __name__ == "__main__":
+    app.run()
